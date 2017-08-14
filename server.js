@@ -15,10 +15,10 @@ app.use(bodyParser.urlencoded({ extended: true }))
 //     res.end('HW!');
 // });
 
-fs.appendFile('server.log', 'string to append', function(err) {
-    if (err) return console.log(err);
-    console.log('Appended!');
-});
+// fs.appendFile('server.log', 'string to append', function(err) {
+//     if (err) return console.log(err);
+//     console.log('Appended!');
+// });
 
 
 // fs.readFile("server.log", "utf8", function(err, data) {
@@ -34,19 +34,47 @@ fs.appendFile('server.log', 'string to append', function(err) {
 //     }
 // });
 
-var array = fs.readFileSync('server.log').toString().split("\n");
-let s = '';
-for (let i in array) {
-    s = array[i];
-    array[i] = 'A1 ' + s + ' A2';
+// var array = fs.readFileSync('server.log').toString().split("\n");
+// let s = '';
+// for (let i in array) {
+//     s = array[i];
+//     array[i] = s.slice(0, -1);
 
-}
+// }
 
-console.log(array);
+// console.log(array);
+
+var createFilter = function() {
+    let arr2 = [];
+    arr2[0] = '(';
+
+    let array = fs.readFileSync('server.log').toString().split("\r\n");
+
+    let tmpStr = '';
+
+
+    // AT('28a66c4d-b459-4174-9f1b-b9ee658d4396', AOGUID)>0 or
+    for (let i = 0; i < array.length; i++) {
+        if (i == array.length - 1) {
+            tmpStr = 'AT("' + array[i].toString() + '", AOGUID)>0 ';
+
+        } else {
+            tmpStr = 'AT("' + array[i].toString() + '", AOGUID)>0 or ';
+        }
+
+        arr2.push(tmpStr);
+    };
+    arr2.push(')');
+    arr2.push('and ACTSTATUS = 1');
+
+    let templateStr = arr2.join("");
+    fs.writeFileSync('server.log', templateStr);
+    console.log(arr2);
+};
 
 app.get('/', async(req, res) => {
 
-
+    createFilter();
     res.sendFile(__dirname + '/index.html');
 
 
